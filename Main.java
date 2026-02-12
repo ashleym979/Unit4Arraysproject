@@ -40,6 +40,10 @@ public class Main {
         int twoKind=0;
         int oneKind=0;
         int highCard=0;
+        String[] rankTypeBid= new String[lines.length];
+        String[] rankTypeString= new String[lines.length];
+        int[] rankTypes= new int[lines.length];
+        String[] hand= new String[lines.length];
 
 
         for (int i = 0; i < lines.length; i++) {
@@ -52,9 +56,9 @@ public class Main {
             String[] part = temp.split("\\|");
             int[] cards = new int[13];
             String raine = part[0];
+            rankTypeBid[i]=part[1];
+            hand[i]=part[0];
             String[] hailey= raine.split(",");
-
-
 
 
             int[] handNum = new int[hailey.length];
@@ -99,24 +103,46 @@ public class Main {
             }
             if (five){
                 fiveKind++;
+                rankTypeString[i]="7";
             }else if (four){
                 fourKind++;
+                rankTypeString[i]="5";
             }else if (three&&pairs==1){
                 fullHouse++;
+                rankTypeString[i]="6";
             }else if (pairs==2){
                 twoKind++;
+                rankTypeString[i]="3";
             }else if (three){
                 threeKind++;
+                rankTypeString[i]="4";
             }else if (pairs==1){
                 oneKind++;
+                rankTypeString[i]="2";
             }else {
                 highCard++;
+                rankTypeString[i]="1";
             }
-
-
-
         }
 
+        System.out.println(Arrays.toString(rankTypeString));
+
+        for (int m = 0; m < rankTypeString.length; m++) {
+            rankTypes[m]= parseInt(rankTypeString[m]);
+        }
+
+        for (int l = 0; l < rankTypeString.length; l++) {
+            int temp=0;
+            if (l<rankTypeString.length-1){
+                if (rankTypes[l]>rankTypes[l+1]){
+                    temp= rankTypes[l+1];
+                    rankTypes[l+1]= rankTypes[l];
+                    rankTypes[l]=temp;
+                    System.out.println(temp);
+                }
+            }
+        }
+        System.out.println(Arrays.toString(rankTypes));
 
         System.out.println("Number of five of a kind hands: "+fiveKind);
         System.out.println("Number of full house hands: "+fullHouse);
@@ -127,4 +153,3 @@ public class Main {
         System.out.println("Number of high card hands: "+highCard);
     }
 }
-
