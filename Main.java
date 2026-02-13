@@ -3,25 +3,13 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Scanner;
 
-
-
-
-import static java.lang.Integer.parseInt;
-
-
-
-
-
-
-
-
 public class Main {
     public static void main(String[] args) {
+
         String fileData = "";
         try {
             File f = new File("src/data");
             Scanner s = new Scanner(f);
-
 
             while (s.hasNextLine()) {
                 String line = s.nextLine();
@@ -31,146 +19,197 @@ public class Main {
             System.out.println("File not found");
         }
 
-
         String[] lines = fileData.split("\n");
 
+        Hand[] allHands = new Hand[lines.length];
 
-        int fiveKind = 0;
-        int fourKind = 0;
+        int fiveOfAKind = 0;
+        int fourOfAKind = 0;
         int fullHouse = 0;
-        int threeKind = 0;
-        int twoKind = 0;
-        int oneKind = 0;
+        int threeOfAKind = 0;
+        int twoPair = 0;
+        int onePair = 0;
         int highCard = 0;
-        String[] rankTypeBidString = new String[lines.length];
-        int[] rankTypeBid = new int[lines.length];
-        String[] rankTypeString = new String[lines.length];
-        int[] rankTypes = new int[lines.length];
-        String[] hand = new String[lines.length];
+        int handCombo = 0;
 
+        //Part 1
 
-        for (int i = 0; i < lines.length; i++) {
+        int index = 0;
 
+        for (String line : lines) {
+            int[] counter = new int[14];
+            String[] bid = line.split("\\|");
+            String bidValue = bid[0];
+            int actualBidValue = Integer.parseInt(bid[1]);
 
-            int pairs = 0;
+            String[] numbers = bidValue.split(",");
+            int[] values = new int[numbers.length];
 
-
-            String temp = lines[i];
-            String[] part = temp.split("\\|");
-            int[] cards = new int[13];
-            String raine = part[0];
-            rankTypeBidString[i] = part[1];
-            hand[i] = part[0];
-            String[] hailey = raine.split(",");
-
-
-            int[] handNum = new int[hailey.length];
-            for (int j = 0; j < hailey.length; j++) {
-                if (hailey[j].equals("Ace")) {
-                    hailey[j] = "1";
-                } else if (hailey[j].equals("King")) {
-                    hailey[j] = "13";
-                } else if (hailey[j].equals("Queen")) {
-                    hailey[j] = "12";
-                } else if (hailey[j].equals("Jack")) {
-                    hailey[j] = "11";
+            for (int j = 0; j < numbers.length; j++) {
+                if (numbers[j].equals("Jack")) {
+                    values[j] = 11;
+                } else if (numbers[j].equals("Queen")) {
+                    values[j] = 12;
+                } else if (numbers[j].equals("King")) {
+                    values[j] = 13;
+                } else if (numbers[j].equals("Ace")) {
+                    values[j] = 14;
+                } else {
+                    values[j] = Integer.parseInt(numbers[j]);
                 }
-                handNum[j] = parseInt(hailey[j]);
             }
 
-
-            for (int t = 0; t < cards.length; t++) {
-                for (int r = 0; r < handNum.length; r++) {
-                    if ((t + 1) == handNum[r]) {
-                        cards[t]++;
+            for (int k = 2; k <= 14; k++) {
+                for (int j = 0; j < 5; j++) {
+                    if (values[j] == k) {
+                        counter[k - 1] += 1;
                     }
                 }
             }
-            boolean five = false;
-            boolean four = false;
-            boolean three = false;
-            for (int s = 0; s < cards.length; s++) {
 
+            int triplet = 0;
+            int two = 0;
+            int singles = 0;
 
-                if (cards[s] == 2) {
-                    pairs++;
-                }
-                if (cards[s] == 5) {
-                    five = true;
-                }
-                if (cards[s] == 4) {
-                    four = true;
-                }
-                if (cards[s] == 3) {
-                    three = true;
+            for (int l = 0; l < 14; l++) {
+                if (counter[l] == 5) {
+                    fiveOfAKind += 1;
+                    handCombo = 7;
+                } else if (counter[l] == 4) {
+                    fourOfAKind += 1;
+                    handCombo = 6;
+                } else if (counter[l] == 3) {
+                    triplet += 1;
+                } else if (counter[l] == 2) {
+                    two += 1;
+                } else if (counter[l] == 1) {
+                    singles += 1;
                 }
             }
-            if (five) {
-                fiveKind++;
-                rankTypeString[i] = "7";
-            } else if (four) {
-                fourKind++;
-                rankTypeString[i] = "6";
-            } else if (three && pairs == 1) {
-                fullHouse++;
-                rankTypeString[i] = "5";
-            } else if (pairs == 2) {
-                twoKind++;
-                rankTypeString[i] = "3";
-            } else if (three) {
-                threeKind++;
-                rankTypeString[i] = "4";
-            } else if (pairs == 1) {
-                oneKind++;
-                rankTypeString[i] = "2";
-            } else {
-                highCard++;
-                rankTypeString[i] = "1";
+
+
+            if (triplet == 1 && two == 1) {
+                fullHouse += 1;
+                handCombo = 5;
+            } else if (triplet == 1) {
+                threeOfAKind += 1;
+                handCombo = 4;
+            } else if (two == 2) {
+                twoPair += 1;
+                handCombo = 3;
+            } else if (two == 1) {
+                onePair += 1;
+                handCombo = 2;
+            } else if (singles == 5) {
+                highCard += 1;
+                handCombo = 1;
             }
-        }
-        for (int m = 0; m < rankTypeString.length; m++) {
-            rankTypes[m] = parseInt(rankTypeString[m]);
-            rankTypeBid[m] = parseInt(rankTypeBidString[m]);
+
+            Hand h = new Hand(values, actualBidValue, handCombo, 0, counter);
+            allHands[index] = h;
+
+            index++;
         }
 
+        System.out.println("Number of five of a kind: " + fiveOfAKind);
+        System.out.println("Number of full house: " + fullHouse);
+        System.out.println("Number of four of a kind: " + fourOfAKind);
+        System.out.println("Number of three of a kind: " + threeOfAKind);
+        System.out.println("Number of two pair: " + twoPair);
+        System.out.println("Number of one pair: " + onePair);
+        System.out.println("Number of high card: " + highCard);
 
-        for (int l = 0; l < rankTypeString.length; l++) {
-            int temp = 0;
-            String stringTemp = "";
-            if (l < rankTypeString.length - 1) {
-                if (rankTypes[l] > rankTypes[l + 1]) {
-                    temp = rankTypes[l + 1];
-                    rankTypes[l + 1] = rankTypes[l];
-                    rankTypes[l] = temp;
-                    temp = rankTypeBid[l + 1];
-                    rankTypeBid[l + 1] = rankTypeBid[l];
-                    rankTypeBid[l] = temp;
-                    stringTemp = hand[l + 1];
-                    hand[l + 1] = hand[l];
-                    hand[l] = stringTemp;
+        //part 2
+        for (int i = 0; i < allHands.length; i++) {
+            int numOfweakerHands = 0;
+            for (int j = 0; j < allHands.length; j++) {
+                int currentHand = allHands[i].getHand();
+                int handBefore = allHands[j].getHand();
+                int[] currentCards = allHands[i].getCards();
+                int[] cardsBefore = allHands[j].getCards();
+                boolean stronger = allHands[i].isStronger(currentHand, handBefore, currentCards, cardsBefore);
+
+                if (stronger == true){
+                    numOfweakerHands ++;
                 }
-            }
-        }
 
-        for (int i = 0; i < rankTypes.length; i++) {
-            if (i<rankTypes.length-1){
-                if (rankTypes[i]==rankTypes[i+1]){
-                    for (int j = 0; j < hand.length; j++) {
-                        String temp = hand[j];
-                        String[] part = temp.split(" ");
-                        System.out.println(temp);
-                    }
-                }
+                allHands[i].setRank(numOfweakerHands);
             }
         }
 
-        System.out.println("Number of five of a kind hands: " + fiveKind);
-        System.out.println("Number of full house hands: " + fullHouse);
-        System.out.println("Number of four of a kind hands: " + fourKind);
-        System.out.println("Number of three of a kind hands: " + threeKind);
-        System.out.println("Number of two pair hands: " + twoKind);
-        System.out.println("Number of one pair hands: " + oneKind);
-        System.out.println("Number of high card hands: " + highCard);
+        int totalBid = 0;
+        for (int i = 0; i < allHands.length; i++) {
+            int bid = allHands[i].getBid();
+            int rank = allHands[i].getRank() + 1;
+
+            int eachBid = bid * rank;
+            totalBid = totalBid + eachBid;
+        }
+
+        System.out.println("Total Bid Value: " + totalBid);
+
+        //Part 3
+
+        for (int i = 0; i < allHands.length; i++) {
+            int[] counter2 = allHands[i].getTotalOccurance();
+            int[] currentHand = allHands[i].getCards();
+            if (allHands[i].getHand() == 6 || allHands[i].getHand() == 5){
+                if (counter2[10] >= 1){
+                    allHands[i].setHand(7);
+                }
+                allHands[i].jack(currentHand);
+            } else if (allHands[i].getHand() == 4){
+                if (counter2[10] >= 1){
+                    allHands[i].setHand(6);
+                }
+                allHands[i].jack(currentHand);
+            } else if (allHands[i].getHand() == 3) {
+                if (counter2[10] == 2){
+                    allHands[i].setHand(6);
+                } else if (counter2[10] == 1) {
+                    allHands[i].setHand(5);
+                }
+                allHands[i].jack(currentHand);
+            } else if (allHands[i].getHand() == 2) {
+                if (counter2[10] >= 1){
+                    allHands[i].setHand(4);
+                }
+                allHands[i].jack(currentHand);
+            } else if (allHands[i].getHand() == 1) {
+                if (counter2[10] == 1){
+                    allHands[i].setHand(2);
+                }
+                allHands[i].jack(currentHand);
+            }
+        }
+
+        for (int i = 0; i < allHands.length; i++) {
+            int numOfweakerHands = 0;
+            for (int j = 0; j < allHands.length; j++) {
+                int currentHand = allHands[i].getHand();
+                int handBefore = allHands[j].getHand();
+                int[] currentCards = allHands[i].getCards();
+                int[] cardsBefore = allHands[j].getCards();
+                boolean stronger = allHands[i].isStronger(currentHand, handBefore, currentCards, cardsBefore);
+
+                if (stronger == true){
+                    numOfweakerHands ++;
+                }
+
+                allHands[i].setRank(numOfweakerHands);
+            }
+        }
+
+        int totalBidWithJacks = 0;
+        for (int i = 0; i < allHands.length; i++) {
+            int bid = allHands[i].getBid();
+            int rank = allHands[i].getRank() + 1;
+
+            int eachBid = bid * rank;
+            totalBidWithJacks = totalBidWithJacks + eachBid;
+        }
+
+        System.out.println("Total Bid Value With Jacks Wild: " + totalBidWithJacks);
 
     }
 }
