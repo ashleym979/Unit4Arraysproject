@@ -128,74 +128,41 @@ public class Main {
                 rankTypeString[i] = "1";
             }
         }
-
         for (int m = 0; m < rankTypeString.length; m++) {
             rankTypes[m] = parseInt(rankTypeString[m]);
             rankTypeBid[m] = parseInt(rankTypeBidString[m]);
         }
 
-        int n = lines.length;
-        int[] handRanks = new int[n];
-        int[][] handValues = new int[n][5];
 
-        for (int i = 0; i < n; i++) {
-            String[] cards1 = hand[i].split(",");
-            int[] values1 = new int[5];
-            for (int k = 0; k < 5; k++) {
-                if (cards1[k].equals("Ace")) values1[k] = 14;
-                else if (cards1[k].equals("King")) values1[k] = 13;
-                else if (cards1[k].equals("Queen")) values1[k] = 12;
-                else if (cards1[k].equals("Jack")) values1[k] = 11;
-                else values1[k] = parseInt(cards1[k]);
-            }
-
-            // Build frequency array
-            int[] freq1 = new int[15];
-            for (int v : values1) freq1[v]++;
-
-            for (int j = 0; j < n; j++) {
-                if (i == j) continue;
-                boolean hand2Stronger = false;
-
-                if (rankTypes[j] > rankTypes[i]) hand2Stronger = true;
-                else if (rankTypes[j] == rankTypes[i]) {
-                    String[] cards2 = hand[j].split(",");
-                    int[] values2 = new int[5];
-                    for (int k = 0; k < 5; k++) {
-                        if (cards2[k].equals("Ace")) values2[k] = 14;
-                        else if (cards2[k].equals("King")) values2[k] = 13;
-                        else if (cards2[k].equals("Queen")) values2[k] = 12;
-                        else if (cards2[k].equals("Jack")) values2[k] = 11;
-                        else values2[k] = parseInt(cards2[k]);
-                    }
-
-                    int[] freq2 = new int[15];
-                    for (int v : values2) freq2[v]++;
-
-                    // Compare hands manually by frequency and then by value
-                    outer:
-                    for (int count = 5; count >= 1; count--) {
-                        for (int val = 14; val >= 2; val--) {
-                            if (freq2[val] == count && freq1[val] < count) {
-                                hand2Stronger = true;
-                                break outer;
-                            } else if (freq1[val] == count && freq2[val] < count) {
-                                hand2Stronger = false;
-                                break outer;
-                            }
-                        }
-                    }
+        for (int l = 0; l < rankTypeString.length; l++) {
+            int temp = 0;
+            String stringTemp = "";
+            if (l < rankTypeString.length - 1) {
+                if (rankTypes[l] > rankTypes[l + 1]) {
+                    temp = rankTypes[l + 1];
+                    rankTypes[l + 1] = rankTypes[l];
+                    rankTypes[l] = temp;
+                    temp = rankTypeBid[l + 1];
+                    rankTypeBid[l + 1] = rankTypeBid[l];
+                    rankTypeBid[l] = temp;
+                    stringTemp = hand[l + 1];
+                    hand[l + 1] = hand[l];
+                    hand[l] = stringTemp;
                 }
-                if (hand2Stronger) handRanks[i]++;
             }
         }
 
-
-
-
-        int totalValue = 0;
-        for (int i = 0; i < n; i++) totalValue += handRanks[i] * rankTypeBid[i];
-
+        for (int i = 0; i < rankTypes.length; i++) {
+            if (i<rankTypes.length-1){
+                if (rankTypes[i]==rankTypes[i+1]){
+                    for (int j = 0; j < hand.length; j++) {
+                        String temp = hand[j];
+                        String[] part = temp.split(" ");
+                        System.out.println(temp);
+                    }
+                }
+            }
+        }
 
         System.out.println("Number of five of a kind hands: " + fiveKind);
         System.out.println("Number of full house hands: " + fullHouse);
@@ -204,6 +171,6 @@ public class Main {
         System.out.println("Number of two pair hands: " + twoKind);
         System.out.println("Number of one pair hands: " + oneKind);
         System.out.println("Number of high card hands: " + highCard);
-        System.out.println("Total Bid Value: " + totalValue);
+
     }
 }
